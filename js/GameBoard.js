@@ -6,7 +6,6 @@
 // Global variables
 canvas = null;
 ctx = null;
-
 var isStarted = false;
 
 var pointCountX = 5;
@@ -17,6 +16,9 @@ var canvasHeight;
 var buttonStart = document.getElementById("start-button");
 buttonStart.onclick = startGame;
 // ----------------------------------------
+var canvas = document.getElementById("game-canvas");
+var ctx = canvas.getContext("2d");
+
 function startGame(){
 
 
@@ -26,13 +28,13 @@ function startGame(){
 	}
 	else{
 
-		canvas = document.getElementById("game-canvas");
-	    ctx = canvas.getContext("2d");
+		
 
 	    canvasWidth = canvas.width;
 	    canvasHeight = canvas.height;
 
 	    //alert("Canvas width = "+canvasWidth+" \nCanvas height = "+canvasHeight);
+
 
 	    var countX = pointCountX;
 	    var countY = pointCountY;
@@ -75,6 +77,37 @@ function drawPointCircle(x, y, context){
   context.strokeStyle = '#D5D0D0';
   context.stroke();
 }
+function getMousePos(canvas, evt) {
+        var rect = canvas.getBoundingClientRect();
+        return {
+          x: evt.clientX - rect.left,
+          y: evt.clientY - rect.top
+        };
+      }
+
+canvas.addEventListener('mousedown', function(evt) {
+	var mousePos = getMousePos(canvas, evt);
+	var message = 'Mouse position: ' + mousePos.x + ',' + mousePos.y;
+	console.log(message);
+}, false);
+
+
+
+
+function writeMessage(canvas, message) {
+    var context = canvas.getContext('2d');
+    context.font = '10pt Calibri';
+    context.fillStyle = 'black';
+    context.fillText(message, 10, 25);
+}
+
+
+
+
+
+
+
+
 
 
 
