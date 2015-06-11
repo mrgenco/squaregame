@@ -15,6 +15,16 @@ var buttonStart = document.getElementById("start-button");
 buttonStart.onclick = startGame;
 // ----------------------------------------
 var canvas = document.getElementById("game-canvas");
+
+//Logical canvas size
+canvas.width=400;
+canvas.height=300;
+
+//The size that is seen on the browser
+canvas.style.width=400;
+canvas.style.width=300;
+
+
 var ctx = canvas.getContext("2d");
 
 function startGame(){
@@ -30,9 +40,7 @@ function startGame(){
 	    canvasWidth = canvas.width;
 	    canvasHeight = canvas.height;
 
-	    //alert("Canvas width = "+canvasWidth+" \nCanvas height = "+canvasHeight);
-
-
+	    
 	    var countX = pointCountX;
 	    var countY = pointCountY;
 
@@ -42,19 +50,18 @@ function startGame(){
 
 	    //pointX and pointY should start from 5 since 
 	    //the gameboard has a 5px border
-	    pointX = 3;	
-	    pointY = 3;
+	    pointX = 5;	
+	    pointY = 5;
 
 	    for (var i = 0; i < countY; i++) {
 	    	for (var j = 0; j < countX; j++) {
 	    		
     	      drawPointCircle(pointX, pointY, ctx);
-
 	    	  pointX = pointX + pointDistanceX;
 
 	    	};
 	    	pointY = pointY + pointDistanceY;
-	    	pointX = 3;
+	    	pointX = 5;
 	    };
 
 		isStarted = true;
@@ -64,8 +71,8 @@ function startGame(){
 
 function drawPointCircle(x, y, context){
 	context.beginPath();
-	context.arc(x, y, 3, 0, Math.PI*2, false);
-	context.fillStyle = "red";
+	context.arc(x, y, 5, 0, Math.PI*2, false);
+	context.fillStyle = "#5CB85C";
 	context.fill();
 	context.closePath();
 	
