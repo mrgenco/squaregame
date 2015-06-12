@@ -29,7 +29,6 @@ var ctx = canvas.getContext("2d");
 
 function startGame(){
 
-
 	if(isStarted)
 	{
 		alert("Game is already started!");
