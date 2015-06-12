@@ -20,13 +20,18 @@ var canvas = document.getElementById("game-canvas");
 canvas.width=400;
 canvas.height=300;
 
-//The size that is seen on the browser
+//The size we see on the browser
+//These values must be same with Logical canvas.
+//Otherwise browser will automatically scale the drawings 
 canvas.style.width=400;
 canvas.style.width=300;
 
 
 var ctx = canvas.getContext("2d");
 
+//This function draws a matrix
+//By default 5x5
+//TODO : startGame function must take argument for matrix size
 function startGame(){
 
 	if(isStarted)
@@ -68,6 +73,7 @@ function startGame(){
     
 }
 
+//Draws circle
 function drawPointCircle(x, y, context){
 	context.beginPath();
 	context.arc(x, y, 5, 0, Math.PI*2, false);
@@ -85,6 +91,7 @@ function getMousePos(canvas, evt) {
     };
 }
 
+//You can see the coordinates on the browser console..
 canvas.addEventListener('mousedown', function(evt) {
 	var mousePos = getMousePos(canvas, evt);
 	var message = 'Mouse position: ' + mousePos.x + ',' + mousePos.y;
