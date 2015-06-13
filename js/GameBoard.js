@@ -1,75 +1,89 @@
 //Author : Mehmet Rasid Gencosmanoglu
 //ProjectName : SquareGame
 
-
+$( "#start-button" ).click(function() {
+  $( "#select-size" ).show( "slow" );
+});
 
 // Global variables
+
+
+var button_3x3 = document.getElementById("button-3x3");
+var button_4x4 = document.getElementById("button-4x4");
+var button_5x5 = document.getElementById("button-5x5");
+var button_6x6 = document.getElementById("button-6x6");
+
+
+
 var isStarted = false;
 
 var pointCountX = 5;
 var pointCountY = 5;
+
+var canvas = document.getElementById("game-canvas");
 var canvasWidth;
 var canvasHeight;
 
-var buttonStart = document.getElementById("start-button");
-buttonStart.onclick = startGame;
-// ----------------------------------------
-var canvas = document.getElementById("game-canvas");
+
+button_3x3.onclick = startGame;
+button_4x4.onclick = startGame;
+button_5x5.onclick = startGame;
+button_6x6.onclick = startGame;
 
 //Logical canvas size
-canvas.width=400;
-canvas.height=300;
+canvas.width=window.innerWidth/3;	//%33
+canvas.height=window.innerHeight/2;	//%50
+
 
 //The size we see on the browser
 //These values must be same with Logical canvas.
 //Otherwise browser will automatically scale the drawings 
-canvas.style.width=400;
-canvas.style.width=300;
+canvas.style.width = '100%';
+canvas.style.height = '100%';
 
 
 var ctx = canvas.getContext("2d");
+
+
+
 
 //This function draws a matrix
 //By default 5x5
 //TODO : startGame function must take argument for matrix size
 function startGame(){
 
-	if(isStarted)
-	{
-		alert("Game is already started!");
-	}
-	else
-	{
+	
+	ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-	    canvasWidth = canvas.width;
-	    canvasHeight = canvas.height;
+    canvasWidth = canvas.width;
+    canvasHeight = canvas.height;
 
-	    
-	    var countX = pointCountX;
-	    var countY = pointCountY;
+    //Gameboard size can be 3x3, 4x4, 5x5, 6x6
+    var countX = this.value;
+    var countY = this.value;
 
-	    //Points are created on the board
-	    pointDistanceX = canvasWidth/countX;
-	    pointDistanceY = canvasHeight/countY;	
+    //Points are created on the board
+    pointDistanceX = canvasWidth/countX;
+    pointDistanceY = canvasHeight/countY;	
 
-	    //pointX and pointY should start from 5 since 
-	    //the gameboard has a 5px border
-	    pointX = 5;	
-	    pointY = 5;
+    //pointX and pointY should start from 5 since 
+    //the gameboard has a 5px border
+    pointX = pointDistanceX/2;	
+    pointY = pointDistanceY/2;
 
-	    for (var i = 0; i < countY; i++) {
-	    	for (var j = 0; j < countX; j++) {
-	    		
-    	      drawPointCircle(pointX, pointY, ctx);
-	    	  pointX = pointX + pointDistanceX;
+    for (var i = 0; i < countY; i++) {
+    	for (var j = 0; j < countX; j++) {
+    		
+	      drawPointCircle(pointX, pointY, ctx);
+    	  pointX = pointX + pointDistanceX;
 
-	    	};
-	    	pointY = pointY + pointDistanceY;
-	    	pointX = 5;
-	    };
+    	};
+    	pointY = pointY + pointDistanceY;
+    	pointX = pointDistanceX/2;
+    };
 
-		isStarted = true;
-	} 
+	isStarted = true;
+	
     
 }
 
@@ -83,6 +97,7 @@ function drawPointCircle(x, y, context){
 	
 }
 
+
 function getMousePos(canvas, evt) {
     var rect = canvas.getBoundingClientRect();
     return {
@@ -91,6 +106,8 @@ function getMousePos(canvas, evt) {
     };
 }
 
+
+//MOUSE DOWN EVENT
 //You can see the coordinates on the browser console..
 canvas.addEventListener('mousedown', function(evt) {
 	var mousePos = getMousePos(canvas, evt);
