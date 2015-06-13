@@ -1,5 +1,9 @@
-li
+#canvas-container
 {
-	color:white;
+	width:33%;
+    height:50%;
+    position:absolute; 
+    background:blue;
+    left:33%;
 
 }
