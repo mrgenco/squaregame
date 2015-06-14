@@ -1,13 +1,12 @@
 //Author : Mehmet Rasid Gencosmanoglu
 //ProjectName : SquareGame
 
+
 $( "#start-button" ).click(function() {
   $( "#select-size" ).show( "slow" );
 });
 
 // Global variables
-
-
 var button_3x3 = document.getElementById("button-3x3");
 var button_4x4 = document.getElementById("button-4x4");
 var button_5x5 = document.getElementById("button-5x5");
@@ -25,14 +24,13 @@ var canvasWidth;
 var canvasHeight;
 
 
+var ctx = canvas.getContext("2d");
+
 button_3x3.onclick = startGame;
 button_4x4.onclick = startGame;
 button_5x5.onclick = startGame;
 button_6x6.onclick = startGame;
 
-//Logical canvas size
-canvas.width=window.innerWidth/3;	//%33
-canvas.height=window.innerHeight/2;	//%50
 
 
 //The size we see on the browser
@@ -42,7 +40,17 @@ canvas.style.width = '100%';
 canvas.style.height = '100%';
 
 
-var ctx = canvas.getContext("2d");
+//Logical canvas size
+if(window.innerWidth>700)
+{	
+	canvas.width=window.innerWidth/3;	//%33
+	canvas.height=window.innerHeight/2;	//%50
+}
+else
+{
+	canvas.width = window.innerWidth*3/4;
+	canvas.height = window.innerHeight*4/10;
+}
 
 
 

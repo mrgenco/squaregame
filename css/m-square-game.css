@@ -1,0 +1,9 @@
+#canvas-container
+{
+	width:75%;
+    height:50%;
+    position:absolute; 
+    background:blue;
+    left:12.5%;
+
+}

@@ -7,3 +7,19 @@
     left:33%;
 
 }
+
+/* condition for screen size minimum of 700px */
+@media (max-width:700px) {
+
+ #canvas-container
+{
+	width:75%;
+    height:40%;
+    position:absolute; 
+    background:blue;
+    left:12.5%;
+
+}
+
+}
+ 
