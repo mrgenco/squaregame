@@ -12,8 +12,6 @@ var button_4x4 = document.getElementById("button-4x4");
 var button_5x5 = document.getElementById("button-5x5");
 var button_6x6 = document.getElementById("button-6x6");
 
-
-
 var isStarted = false;
 
 var pointCountX = 5;
@@ -30,7 +28,6 @@ button_3x3.onclick = startGame;
 button_4x4.onclick = startGame;
 button_5x5.onclick = startGame;
 button_6x6.onclick = startGame;
-
 
 
 //The size we see on the browser
@@ -52,14 +49,10 @@ else
 	canvas.height = window.innerHeight*4/10;
 }
 
-
-
-
 //This function draws a matrix
 //By default 5x5
 //TODO : startGame function must take argument for matrix size
 function startGame(){
-
 	
 	ctx.clearRect(0, 0, canvas.width, canvas.height);
 
@@ -94,6 +87,8 @@ function startGame(){
 	
     
 }
+
+// testing Git-hub committing by 0014
 
 //Draws circle
 function drawPointCircle(x, y, context){
