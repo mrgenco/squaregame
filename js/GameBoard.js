@@ -24,6 +24,20 @@ var canvasHeight;
 
 var ctx = canvas.getContext("2d");
 
+//The maximum range between the selected point perpendicular to the nearest edge 
+//var maxRange = 10;
+
+//Line properties
+var lineWidth = 10; 
+var lineColor = "#FF0000"; //strokeStyle=color|gradient|pattern;
+var lineType = "round"; //lineCap="butt|round|square";
+
+//Array that helds our point coordinates
+var points = {
+	xPos: [""], // array holding x-coordinates
+	yPos: [""] // array holding y-coordinates
+};
+
 button_3x3.onclick = startGame;
 button_4x4.onclick = startGame;
 button_5x5.onclick = startGame;
@@ -35,7 +49,6 @@ button_6x6.onclick = startGame;
 //Otherwise browser will automatically scale the drawings 
 canvas.style.width = '100%';
 canvas.style.height = '100%';
-
 
 //Logical canvas size
 if(window.innerWidth>700)
@@ -74,18 +87,20 @@ function startGame(){
 
     for (var i = 0; i < countY; i++) {
     	for (var j = 0; j < countX; j++) {
-    		
+    	
+		  points.xPos[j] = pointX;
 	      drawPointCircle(pointX, pointY, ctx);
     	  pointX = pointX + pointDistanceX;
 
     	};
+		points.yPos[i] = pointY;
     	pointY = pointY + pointDistanceY;
     	pointX = pointDistanceX/2;
     };
 
 	isStarted = true;
 	
-    
+	//DrawLine(0, 0 ,0 ,1 ,ctx); // Testing DrawLine function. Draws a line from point (0, 0) to (0, 1).
 }
 
 // testing Git-hub committing by 0014
@@ -97,7 +112,6 @@ function drawPointCircle(x, y, context){
 	context.fillStyle = "#5CB85C";
 	context.fill();
 	context.closePath();
-	
 }
 
 
@@ -109,6 +123,18 @@ function getMousePos(canvas, evt) {
     };
 }
 
+// This function draws a line between the stored point coordinates.
+// Input x and w are the indexes for x-coordinate whereas y and z are indexes of y-coordinates
+function DrawLine(x, y, w, z, context){
+	context.beginPath();
+	context.lineCap = lineType;
+	context.lineWidth = lineWidth;
+	context.moveTo(points.xPos[x], points.yPos[y]);
+	context.lineTo(points.xPos[w], points.yPos[z]);
+	context.strokeStyle = lineColor;
+	context.stroke();
+}
+
 
 //MOUSE DOWN EVENT
 //You can see the coordinates on the browser console..
@@ -116,6 +142,9 @@ canvas.addEventListener('mousedown', function(evt) {
 	var mousePos = getMousePos(canvas, evt);
 	var message = 'Mouse position: ' + mousePos.x + ',' + mousePos.y;
 	console.log(message);
+	
+	//if(ClickIsInRange(mousePos))DrawLine(x,y,z,w,ctx);
+	
 }, false);
 	
 
