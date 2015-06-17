@@ -13,6 +13,11 @@ var button_4x4 = document.getElementById("button-4x4");
 var button_5x5 = document.getElementById("button-5x5");
 var button_6x6 = document.getElementById("button-6x6");
 
+button_3x3.onclick = drawGameBoard;
+button_4x4.onclick = drawGameBoard;
+button_5x5.onclick = drawGameBoard;
+button_6x6.onclick = drawGameBoard;
+
 var isStarted = false;
 
 var pointCountX = 5;
@@ -22,7 +27,7 @@ var canvas = document.getElementById("game-canvas");
 var canvasWidth;
 var canvasHeight;
 
-
+var buttonValue = 0;
 var ctx = canvas.getContext("2d");
 
 //The maximum range between the selected point perpendicular to the nearest edge 
@@ -39,10 +44,6 @@ var points = {
 	yPos: [""] // array holding y-coordinates
 };
 
-button_3x3.onclick = startGame;
-button_4x4.onclick = startGame;
-button_5x5.onclick = startGame;
-button_6x6.onclick = startGame;
 
 
 //The size we see on the browser
@@ -51,23 +52,39 @@ button_6x6.onclick = startGame;
 canvas.style.width = '100%';
 canvas.style.height = '100%';
 
-//Logical canvas size
-if(window.innerWidth>700)
-{	
-	canvas.width=window.innerWidth/3;	//%33
-	canvas.height=window.innerHeight/2;	//%50
-}
-else
-{
-	canvas.width = window.innerWidth*3/4;
-	canvas.height = window.innerHeight*4/10;
+
+window.addEventListener('resize', drawGameBoard, false);
+
+
+resizeCanvas();
+
+// Runs each time the DOM window resize event fires.
+// Resets the canvas dimensions to match window,
+// then draws the new borders accordingly.
+function resizeCanvas() {
+
+
+    if(window.innerWidth>700)
+    {   
+        canvas.width=window.innerWidth/3;   //%33
+        canvas.height=window.innerHeight/2; //%50
+    }
+    else
+    {
+        canvas.width = window.innerWidth*3/4;
+        canvas.height = window.innerHeight*4/10;
+    }
 }
 
-//This function draws a matrix
-//By default 5x5
-//TODO : startGame function must take argument for matrix size
-function startGame(){
+
+/*
+* Draws the game gameboard according to desired values (3x3, 4x4, 5x5, 6x6)
+* 
+*/
+function drawGameBoard(){
 	
+    resizeCanvas();
+
 	ctx.clearRect(0, 0, canvas.width, canvas.height);
 
     canvasWidth = canvas.width;
@@ -86,11 +103,17 @@ function startGame(){
     pointX = pointDistanceX/2;	
     pointY = pointDistanceY/2;
 
+    //We should remove old values to prevent overlapping
+    //Ex : if a user clicks 4x4 and than 3x3 
+    //     points.xPos[3] and points.yPos[3] values still remains
+    points.xPos = [""];
+    points.yPos = [""];
+
     for (var i = 0; i < countY; i++) {
     	for (var j = 0; j < countX; j++) {
     	
 		  points.xPos[j] = pointX;
-	      drawPointCircle(pointX, pointY, ctx);
+	      drawPoint(pointX, pointY, ctx);
     	  pointX = pointX + pointDistanceX;
 
     	};
@@ -99,11 +122,10 @@ function startGame(){
     	pointX = pointDistanceX/2;
     };
 
-	isStarted = true;
 }
 
-//Draws circle
-function drawPointCircle(x, y, context){
+// This function draws a point on the specified coordinates 
+function drawPoint(x, y, context){
 	context.beginPath();
 	context.arc(x, y, 5, 0, Math.PI*2, false);
 	context.fillStyle = "#5CB85C";
@@ -111,18 +133,9 @@ function drawPointCircle(x, y, context){
 	context.closePath();
 }
 
-// the coordinates of getMousePos and points does not overlap sometimes !
-// therefore some errors can occur while drawing lines. We need to match them.
-function getMousePos(canvas, evt) {
-    var rect = canvas.getBoundingClientRect();
-    return {
-      x: evt.clientX - rect.left,
-      y: evt.clientY - rect.top
-    };
-}
 
 // This function draws a line between the input coordinates.
-function DrawLine(x1, y1, x2, y2, context){
+function drawLine(x1, y1, x2, y2, context){
 	context.beginPath();
 	context.lineCap = lineType;
 	context.lineWidth = lineWidth;
@@ -141,8 +154,9 @@ function DrawLine(x1, y1, x2, y2, context){
  *
  * Change the algorithm if better one exists !
  */ 
-function FindTheClosestEdge(canvas, clckPosX, clckPosY){
-	var closestEdge = {
+function findTheClosestEdge(canvas, clckPosX, clckPosY){
+	
+    var closestEdge = {
 		distance: canvas.height + canvas.width,		
 		x1: -1,
 		y1: -1,
@@ -156,7 +170,8 @@ function FindTheClosestEdge(canvas, clckPosX, clckPosY){
 		if(Math.abs(points.xPos[i] - clckPosX) < closestEdge.distance) { // enter if the distance is even smaller
 			
 			// find the y interval
-			if(points.yPos[0] > clckPosY || points.yPos[points.yPos.length - 1] < clckPosY) continue; // do not calculate the distance in this situation
+			if(points.yPos[0] > clckPosY || points.yPos[points.yPos.length - 1] < clckPosY) 
+                continue; // do not calculate the distance in this situation
 	
 			for (var j = 0; j < points.yPos.length; j++) { 
 				if(points.yPos[j] < clckPosY && points.yPos[j + 1] > clckPosY){
@@ -177,10 +192,12 @@ function FindTheClosestEdge(canvas, clckPosX, clckPosY){
 	/*// Calculations for y-coordinate ///*/
 	for (var i = 0; i < points.yPos.length; i++) {
 		
-		if(Math.abs(points.yPos[i] - clckPosY) < closestEdge.distance) { // enter if the distance is even smaller
+		if(Math.abs(points.yPos[i] - clckPosY) < closestEdge.distance) { 
+        // enter if the distance is even smaller
 			
 			// find the x interval
-			if(points.xPos[0] > clckPosX || points.xPos[points.xPos.length - 1] < clckPosX) continue; // do not calculate the distance in this situation
+			if(points.xPos[0] > clckPosX || points.xPos[points.xPos.length - 1] < clckPosX) 
+                continue; // do not calculate the distance in this situation
 			
 			for (var j = 0; j < points.xPos.length; j++) {
 				if(points.xPos[j] < clckPosX && points.xPos[j + 1] > clckPosX){
@@ -204,20 +221,31 @@ function FindTheClosestEdge(canvas, clckPosX, clckPosY){
 //MOUSE DOWN EVENT
 //You can see the coordinates on the browser console..
 canvas.addEventListener('mousedown', function(evt) {
+
 	var mousePos = getMousePos(canvas, evt);
 	var message = 'Mouse position: ' + mousePos.x + ',' + mousePos.y;
 	console.log(message);
 	
-	var edge = FindTheClosestEdge(canvas, mousePos.x, mousePos.y);
+	var edge = findTheClosestEdge(canvas, mousePos.x, mousePos.y);
 	var message2 = 'Distance: ' + edge.distance + '\nPoint 1: (' + edge.x1 + ',' + edge.y1 + ')\nPoint 2: (' + edge.x2 + ',' + edge.y2 + ')';
 	console.log(message2);
 	
-	if(edge.distance < maxRange) DrawLine(edge.x1,edge.y1,edge.x2,edge.y2,ctx); // draw the line if the click is close enough to the edge
+	if(edge.distance < maxRange) 
+        drawLine(edge.x1,edge.y1,edge.x2,edge.y2,ctx); // draw the line if the click is close enough to the edge
 	
 }, false);
 	
-
-
+// the coordinates of getMousePos and points does not overlap sometimes ! 
+// therefore some errors can occur while drawing lines. We need to match them.
+// Known Issue : Points array was holding previous values of the gameboard when different sizes selected. 
+// Solution : Solved by clearing old values in points array each time gameboard created.
+function getMousePos(canvas, evt) {
+    var rect = canvas.getBoundingClientRect();
+    return {
+      x: evt.clientX - rect.left,
+      y: evt.clientY - rect.top
+    };
+}
 
 
 
