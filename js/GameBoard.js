@@ -30,12 +30,27 @@ var canvasHeight;
 var buttonValue = 0;
 var ctx = canvas.getContext("2d");
 
+// Player setup will be made according to 2 on default
+var playerStatus = {
+	// has to be set on drawGameBoard //
+	amount: 2,  // amount of players playing the game
+	names: ["Arif", "Mehmet"], // names of the player
+	color: ["#FF0000", "#0000FF"], // different color for each player
+	// dynamic values //
+	turn: 0
+}
+
+var colors = {
+	pointInitial: "#5CB85C",
+	pointAfterDrawline: "#FFFF00",
+	pointOnHower: "#FF9900"
+}
+
 //The maximum range between the selected point perpendicular to the nearest edge 
 var maxRange = 10;
 
 //Line properties
-var lineWidth = 7; 
-var lineColor = "#FF0000"; //strokeStyle=color|gradient|pattern;
+var lineWidth = 7;
 var lineType = "round"; //lineCap="butt|round|square";
 
 //Array that helds our point coordinates
@@ -63,6 +78,16 @@ window.addEventListener('resize', drawGameBoard, false);
 * 
 */
 function drawGameBoard(){
+	
+	// set player status:
+	// playerStatus.amount = x;
+	// playerStatus.names = {element11, element12, ...}
+	// playerStatus.color = {element21, element22, ...}
+	
+	if(playerStatus.names.length != playerStatus.amount || playerStatus.color.length != playerStatus.amount){
+		
+		// there is some missing information here...
+	}
 	
     resizeCanvas();
 
@@ -112,7 +137,7 @@ function drawGameBoard(){
     	for (var j = 0; j < countX; j++) {
     	
 		  points.xPos[j] = pointX;
-	      drawPoint(pointX, pointY, ctx);
+	      drawPoint(pointX, pointY, ctx, colors.pointInitial);
     	  pointX = pointX + pointDistanceX;
 
           console.log("matrix["+j+"]["+i+"]");
@@ -129,7 +154,6 @@ function drawGameBoard(){
 // Resets the canvas dimensions to match window
 function resizeCanvas() {
 
-
     if(window.innerWidth>700)
     {   
         canvas.width=window.innerWidth/3;   //%33
@@ -143,27 +167,30 @@ function resizeCanvas() {
 }
 
 // This function draws a point on the specified coordinates 
-function drawPoint(x, y, context){
+function drawPoint(x, y, context, color){
+	
 	context.beginPath();
 	context.arc(x, y, 5, 0, Math.PI*2, false);
-	context.fillStyle = "#5CB85C";
+	context.fillStyle = color;
 	context.fill();
 	context.closePath();
-
-
 }
 
 
 // This function draws a line between the input coordinates.
-function drawLine(x1, y1, x2, y2, context){
+function drawLine(x1, y1, x2, y2, context, color){
+	
 	context.beginPath();
 	context.lineCap = lineType;
 	context.lineWidth = lineWidth;
 	context.moveTo(points.xPos[x1], points.yPos[y1]);
 	context.lineTo(points.xPos[x2], points.yPos[y2]);
-	context.strokeStyle = lineColor;
+	context.strokeStyle = color;
 	context.stroke();
 
+	drawPoint(points.xPos[x1], points.yPos[y1], context, colors.pointAfterDrawline); // draw initial point above the drawn line
+	drawPoint(points.xPos[x2], points.yPos[y2], context, colors.pointAfterDrawline); // draw ending point above the drawn line
+	
     console.log(x1 + " " + y1 + " " + x2 + " " + y2);
 
     pointIndices[x1][y1] = 1;
@@ -194,7 +221,7 @@ function isSquareDetected(){
 /**
  * This function detects the nearest edge to the clicked point.
  *
- * Returns the distance to the nearest edge,
+ * @RETURN: the distance to the nearest edge,
  * 		initial point of the nearest edge (x1, y1),
  * 		ending point of the nearest edge (x2, y2)
  *
@@ -264,6 +291,25 @@ function findTheClosestEdge(canvas, clckPosX, clckPosY){
 	return closestEdge;
 }
 
+/**
+ * This function calculates which player is next to play.
+ *
+ * @playerProperties: the object which holds the current turn and player amount information
+ * @forward: this input might be useful if other mods will be created 
+ *
+ * Change the algorithm if better one exists !
+ */ 
+function playerTurnAlgorithm(forward, playerProperties)
+{
+	if(forward){
+		if(playerProperties.turn + 1 == playerProperties.amount){
+			playerProperties.turn = 0;
+		}else{
+			playerProperties.turn ++;
+		}
+	}
+}
+
 //MOUSE DOWN EVENT
 //You can see the coordinates on the browser console..
 canvas.addEventListener('mousedown', function(evt) {
@@ -273,21 +319,24 @@ canvas.addEventListener('mousedown', function(evt) {
 	console.log(message);
 	
 	var edge = findTheClosestEdge(canvas, mousePos.x, mousePos.y);
-	var message2 = 'Distance: ' + edge.distance + '\nPoint 1: (' + edge.x1 + ',' + edge.y1 + ')\nPoint 2: (' + edge.x2 + ',' + edge.y2 + ')';
+	var message2 = 'Distance: ' + edge.distance + '\nPoint 1: (' + points.xPos[edge.x1] + ',' + points.yPos[edge.y1] + ')\nPoint 2: (' + points.xPos[edge.x2] + ',' + points.yPos[edge.y2] + ')';
 	console.log(message2);
 	
-	if(edge.distance < maxRange) 
-        drawLine(edge.x1,edge.y1,edge.x2,edge.y2,ctx); // draw the line if the click is close enough to the edge
-	
-
-    //Control if there is a square after drawing new line..
-    if(isSquareDetected()){
-        console.log("Square Detected");
-
-        //Player score logic can be implemented here..
-
-    }
-
+	if(edge.distance < maxRange){
+		drawLine(edge.x1,edge.y1,edge.x2,edge.y2,ctx, playerStatus.color[playerStatus.turn]); // draw the line if the click is close enough to the edge
+		
+		//Control if there is a square after drawing new line..
+		if(isSquareDetected()){
+			console.log("Square Detected");
+			
+			playerTurnAlgorithm(false, playerStatus) // the player who complates the square will keep turn on himself.
+			
+			//Player score logic can be implemented here..
+			
+		}else{
+			playerTurnAlgorithm(true, playerStatus) // the turn passes to next player
+		}
+	}
 }, false);
 	
 // the coordinates of getMousePos and points does not overlap sometimes ! 
