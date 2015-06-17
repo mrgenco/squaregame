@@ -71,9 +71,21 @@ function drawGameBoard(){
     canvasWidth = canvas.width;
     canvasHeight = canvas.height;
 
-    //Gameboard size can be 3x3, 4x4, 5x5, 6x6
-    var countX = this.value;
-    var countY = this.value;
+    var countX;
+    var countY;
+
+
+    if(this.value){ //enters when window resize 
+        //Gameboard size can be 3x3, 4x4, 5x5, 6x6
+        countX = this.value;
+        countY = this.value;
+        buttonValue = this.value;
+    }
+    else{ //enters when button clicks
+        countX = buttonValue;
+        countY = buttonValue;
+    }
+    
 
     var size = this.value;
     pointIndices = new Array(size);
