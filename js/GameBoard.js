@@ -268,9 +268,13 @@ canvas.addEventListener('mousedown', function(evt) {
         drawLine(edge.x1,edge.y1,edge.x2,edge.y2,ctx); // draw the line if the click is close enough to the edge
 	
 
-    //Control if a there is a square after adding new line..
-    if(isSquareDetected())
+    //Control if there is a square after drawing new line..
+    if(isSquareDetected()){
         console.log("Square Detected");
+
+        //Player score logic can be implemented here..
+
+    }
 
 }, false);
 	
