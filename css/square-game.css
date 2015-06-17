@@ -9,15 +9,15 @@
 }
 
 /* condition for screen size minimum of 700px */
-@media (max-width:700px) {
+@media (max-width:750px) {
 
  #canvas-container
 {
-	width:75%;
-    height:40%;
+	width:100%;
+    height:50%;
     position:absolute; 
     background:blue;
-    left:12.5%;
+    left:0%;
 
 }
 
