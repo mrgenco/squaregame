@@ -44,7 +44,9 @@ var points = {
 	yPos: [""] // array holding y-coordinates
 };
 
-
+//boardArray is a two dimensional array that holds the indices of our points
+//connected with lines
+var pointIndices;
 
 //The size we see on the browser
 //These values must be same with Logical canvas.
@@ -53,32 +55,11 @@ canvas.style.width = '100%';
 canvas.style.height = '100%';
 
 
+//drawGameBoard function will be called each time the user resizes the window
 window.addEventListener('resize', drawGameBoard, false);
 
-
-resizeCanvas();
-
-// Runs each time the DOM window resize event fires.
-// Resets the canvas dimensions to match window,
-// then draws the new borders accordingly.
-function resizeCanvas() {
-
-
-    if(window.innerWidth>700)
-    {   
-        canvas.width=window.innerWidth/3;   //%33
-        canvas.height=window.innerHeight/2; //%50
-    }
-    else
-    {
-        canvas.width = window.innerWidth*3/4;
-        canvas.height = window.innerHeight*4/10;
-    }
-}
-
-
 /*
-* Draws the game gameboard according to desired values (3x3, 4x4, 5x5, 6x6)
+* Draws the gameboard according to desired values (3x3, 4x4, 5x5, 6x6)
 * 
 */
 function drawGameBoard(){
@@ -93,6 +74,12 @@ function drawGameBoard(){
     //Gameboard size can be 3x3, 4x4, 5x5, 6x6
     var countX = this.value;
     var countY = this.value;
+
+    var size = this.value;
+    pointIndices = new Array(size);
+    for (i=0; i <size; i++){
+        pointIndices[i]= new Array(size);
+    }
 
     //Points are created on the board
     pointDistanceX = canvasWidth/countX;
@@ -116,12 +103,31 @@ function drawGameBoard(){
 	      drawPoint(pointX, pointY, ctx);
     	  pointX = pointX + pointDistanceX;
 
+          console.log("matrix["+j+"]["+i+"]");
+
     	};
 		points.yPos[i] = pointY;
     	pointY = pointY + pointDistanceY;
     	pointX = pointDistanceX/2;
     };
 
+}
+
+// Runs each time the DOM window resize event fires.
+// Resets the canvas dimensions to match window
+function resizeCanvas() {
+
+
+    if(window.innerWidth>700)
+    {   
+        canvas.width=window.innerWidth/3;   //%33
+        canvas.height=window.innerHeight/2; //%50
+    }
+    else
+    {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight/2;
+    }
 }
 
 // This function draws a point on the specified coordinates 
@@ -131,6 +137,8 @@ function drawPoint(x, y, context){
 	context.fillStyle = "#5CB85C";
 	context.fill();
 	context.closePath();
+
+
 }
 
 
@@ -143,6 +151,32 @@ function drawLine(x1, y1, x2, y2, context){
 	context.lineTo(points.xPos[x2], points.yPos[y2]);
 	context.strokeStyle = lineColor;
 	context.stroke();
+
+    console.log(x1 + " " + y1 + " " + x2 + " " + y2);
+
+    pointIndices[x1][y1] = 1;
+    pointIndices[x2][y2] = 1;
+
+
+}
+//TODO...
+function isSquareDetected(){
+   
+    console.log(pointIndices.length);
+    for (var i = 0; i < pointIndices.length; i++){
+        for (var j = 0; j < pointIndices[i].length; j++){
+            
+           /* 
+           if (pointIndices[i-1][j] == 1 && pointIndices[i+1][j] == 1 && pointIndices[i][j-1] == 1 && pointIndices[i][j+1] == 1)
+                return true;
+            */
+            if(pointIndices[i][j] == 1){
+                console.log("x : "+ i + " y : " + j);
+            }
+        };
+    };
+    
+    return false;
 }
 
 /**
@@ -233,6 +267,11 @@ canvas.addEventListener('mousedown', function(evt) {
 	if(edge.distance < maxRange) 
         drawLine(edge.x1,edge.y1,edge.x2,edge.y2,ctx); // draw the line if the click is close enough to the edge
 	
+
+    //Control if a there is a square after adding new line..
+    if(isSquareDetected())
+        console.log("Square Detected");
+
 }, false);
 	
 // the coordinates of getMousePos and points does not overlap sometimes ! 
