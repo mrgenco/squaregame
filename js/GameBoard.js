@@ -1,4 +1,5 @@
 //Author : Mehmet Rasid Gencosmanoglu
+//Author : Arif Gencosmanoglu
 //ProjectName : SquareGame
 
 
@@ -25,10 +26,10 @@ var canvasHeight;
 var ctx = canvas.getContext("2d");
 
 //The maximum range between the selected point perpendicular to the nearest edge 
-//var maxRange = 10;
+var maxRange = 10;
 
 //Line properties
-var lineWidth = 10; 
+var lineWidth = 7; 
 var lineColor = "#FF0000"; //strokeStyle=color|gradient|pattern;
 var lineType = "round"; //lineCap="butt|round|square";
 
@@ -99,11 +100,7 @@ function startGame(){
     };
 
 	isStarted = true;
-	
-	//DrawLine(0, 0 ,0 ,1 ,ctx); // Testing DrawLine function. Draws a line from point (0, 0) to (0, 1).
 }
-
-// testing Git-hub committing by 0014
 
 //Draws circle
 function drawPointCircle(x, y, context){
@@ -114,7 +111,8 @@ function drawPointCircle(x, y, context){
 	context.closePath();
 }
 
-
+// the coordinates of getMousePos and points does not overlap sometimes !
+// therefore some errors can occur while drawing lines. We need to match them.
 function getMousePos(canvas, evt) {
     var rect = canvas.getBoundingClientRect();
     return {
@@ -123,18 +121,85 @@ function getMousePos(canvas, evt) {
     };
 }
 
-// This function draws a line between the stored point coordinates.
-// Input x and w are the indexes for x-coordinate whereas y and z are indexes of y-coordinates
-function DrawLine(x, y, w, z, context){
+// This function draws a line between the input coordinates.
+function DrawLine(x1, y1, x2, y2, context){
 	context.beginPath();
 	context.lineCap = lineType;
 	context.lineWidth = lineWidth;
-	context.moveTo(points.xPos[x], points.yPos[y]);
-	context.lineTo(points.xPos[w], points.yPos[z]);
+	context.moveTo(points.xPos[x1], points.yPos[y1]);
+	context.lineTo(points.xPos[x2], points.yPos[y2]);
 	context.strokeStyle = lineColor;
 	context.stroke();
 }
 
+/**
+ * This function detects the nearest edge to the clicked point.
+ *
+ * Returns the distance to the nearest edge,
+ * 		initial point of the nearest edge (x1, y1),
+ * 		ending point of the nearest edge (x2, y2)
+ *
+ * Change the algorithm if better one exists !
+ */ 
+function FindTheClosestEdge(canvas, clckPosX, clckPosY){
+	var closestEdge = {
+		distance: canvas.height + canvas.width,		
+		x1: -1,
+		y1: -1,
+		x2: -1,
+		y2: -1
+	};
+	
+	/*// Calculations for x-coordinate ///*/
+	for (var i = 0; i < points.xPos.length; i++) {
+		
+		if(Math.abs(points.xPos[i] - clckPosX) < closestEdge.distance) { // enter if the distance is even smaller
+			
+			// find the y interval
+			if(points.yPos[0] > clckPosY || points.yPos[points.yPos.length - 1] < clckPosY) continue; // do not calculate the distance in this situation
+	
+			for (var j = 0; j < points.yPos.length; j++) { 
+				if(points.yPos[j] < clckPosY && points.yPos[j + 1] > clckPosY){
+					closestEdge.y1 = j;
+					closestEdge.y2 = j + 1;
+					break;
+				}
+			}
+			
+			//find the x interval
+			closestEdge.x1 = i;
+			closestEdge.x2 = i;
+			
+			closestEdge.distance = Math.abs(points.xPos[i] - clckPosX); // calculate distance
+		}
+	}
+	
+	/*// Calculations for y-coordinate ///*/
+	for (var i = 0; i < points.yPos.length; i++) {
+		
+		if(Math.abs(points.yPos[i] - clckPosY) < closestEdge.distance) { // enter if the distance is even smaller
+			
+			// find the x interval
+			if(points.xPos[0] > clckPosX || points.xPos[points.xPos.length - 1] < clckPosX) continue; // do not calculate the distance in this situation
+			
+			for (var j = 0; j < points.xPos.length; j++) {
+				if(points.xPos[j] < clckPosX && points.xPos[j + 1] > clckPosX){
+					closestEdge.x1 = j;
+					closestEdge.x2 = j + 1;
+					break;
+				}
+			}
+			
+			//find the y interval
+			closestEdge.y1 = i;
+			closestEdge.y2 = i;	
+			
+			closestEdge.distance = Math.abs(points.yPos[i] - clckPosY); // calculate distance
+		}
+	}
+	
+	return closestEdge;
+}
 
 //MOUSE DOWN EVENT
 //You can see the coordinates on the browser console..
@@ -143,7 +208,11 @@ canvas.addEventListener('mousedown', function(evt) {
 	var message = 'Mouse position: ' + mousePos.x + ',' + mousePos.y;
 	console.log(message);
 	
-	//if(ClickIsInRange(mousePos))DrawLine(x,y,z,w,ctx);
+	var edge = FindTheClosestEdge(canvas, mousePos.x, mousePos.y);
+	var message2 = 'Distance: ' + edge.distance + '\nPoint 1: (' + edge.x1 + ',' + edge.y1 + ')\nPoint 2: (' + edge.x2 + ',' + edge.y2 + ')';
+	console.log(message2);
+	
+	if(edge.distance < maxRange) DrawLine(edge.x1,edge.y1,edge.x2,edge.y2,ctx); // draw the line if the click is close enough to the edge
 	
 }, false);
 	
