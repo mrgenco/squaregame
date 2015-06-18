@@ -60,13 +60,11 @@ var points = {
 };
 
 //pointsConnected array holds the indices of previously connected points.
-//Ex : assume x1 = 0 : y1 = 0 and x2 = 1 : y2 = 0 are connected
-//     than pointsConnected must contain the value 0010 which refers to x1y1x2y2
+//it helps us detecting square 
+//it prevents multiple attempts while drawing lines.
+//Usage : assume x1 = 0 : y1 = 0 and x2 = 1 : y2 = 0 are connected
+//        than pointsConnected must contain the value 0010 which refers to x1y1x2y2
 var pointsConnected = [""]; 
-
-//boardArray is a two dimensional array that holds the indices of our points
-//connected with lines
-var pointIndices;
 
 //The size we see on the browser
 //These values must be same with Logical canvas.
@@ -93,7 +91,12 @@ function drawGameBoard(){
 		
 		// there is some missing information here...
 	}
-	
+    //Old values must be cleared before canvas recreated..
+    pointsConnected = [""];
+    points.xPos = [""];
+    points.yPos = [""];
+
+
     resizeCanvas();
 
 	ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -105,24 +108,17 @@ function drawGameBoard(){
     var countY;
 
 
-    if(this.value){ //enters when window resize 
+    if(this.value){ //enters when button clicks
         //Gameboard size can be 3x3, 4x4, 5x5, 6x6
         countX = this.value;
         countY = this.value;
         buttonValue = this.value;
     }
-    else{ //enters when button clicks
+    else{ //enters when window resize 
         countX = buttonValue;
         countY = buttonValue;
     }
     
-
-    var size = this.value;
-    pointIndices = new Array(size);
-    for (i=0; i <size; i++){
-        pointIndices[i] = new Array(size);
-    }
-
     //Points are created on the board
     pointDistanceX = canvasWidth/countX;
     pointDistanceY = canvasHeight/countY;	
@@ -132,11 +128,7 @@ function drawGameBoard(){
     pointX = pointDistanceX/2;	
     pointY = pointDistanceY/2;
 
-    //We should remove old values to prevent overlapping
-    //Ex : if a user clicks 4x4 and than 3x3 
-    //     points.xPos[3] and points.yPos[3] values still remains
-    points.xPos = [""];
-    points.yPos = [""];
+    
 
     for (var i = 0; i < countY; i++) {
     	for (var j = 0; j < countX; j++) {
@@ -182,14 +174,16 @@ function drawPoint(x, y, context, color){
 }
 
 
-// This function draws a line between the input coordinates.
-// UPDATE : Control added for second draw attempt between previously connected points. 
-//          returns true if line is drawn 
-//          returns false if there is already a line
+/* 
+* This function draws a line between the input coordinates.
+* UPDATE : Control added for second draw attempt between previously connected points. 
+*          returns true if line is drawn 
+*          returns false if there is already a line
+*/
 function drawLine(x1, y1, x2, y2, context, color){	
 
     var indicesConcat = x1.toString() + y1.toString() + x2.toString() + y2.toString();
-
+    console.log(indicesConcat);
     // Control added for second draw attempt
     if(pointsConnected.indexOf(indicesConcat) == -1){ //Enter if x1y1x2y2 combination doesnt exist
 
@@ -208,10 +202,7 @@ function drawLine(x1, y1, x2, y2, context, color){
 
         //add these indices to array for not drawing between same points later 
         pointsConnected.push(indicesConcat);
-
-        pointIndices[x1][y1] = 1;
-        pointIndices[x2][y2] = 1;
-
+        
         return true;
 
     }
@@ -221,23 +212,72 @@ function drawLine(x1, y1, x2, y2, context, color){
     }
 
 }
-//TODO...
-function isSquareDetected(){
+
+
+/**
+ * This function controls if there is a possible square after drawing each line
+ *
+ * @param x1,y1 : point1
+ * @param x2,y2 : point2
+ * @return : true if square detected, false otherwise
+ *
+ * Known Issue : in some cases it is possible to create multiple square with single line 
+ *               and this function didnt handle it yet.
+ *
+ * Change the algorithm if better one exists ! ( I don't think so :P )
+ */ 
+function isSquareDetected(x1, y1, x2, y2){
    
-    console.log(pointIndices.length);
-    for (var i = 0; i < pointIndices.length; i++){
-        for (var j = 0; j < pointIndices[i].length; j++){
-            
-           /* 
-           if (pointIndices[i-1][j] == 1 && pointIndices[i+1][j] == 1 && pointIndices[i][j-1] == 1 && pointIndices[i][j+1] == 1)
-                return true;
-            */
-            if(pointIndices[i][j] == 1){
-                console.log("x : "+ i + " y : " + j);
-            }
-        };
-    };
-    
+   var indicesConcat1;
+   var indicesConcat2;
+   var indicesConcat3;
+
+   //if the line is vertical control possible left and right squares
+   if(y2 > y1)
+   {
+
+        //CHECK LEFT SQUARE  
+
+        indicesConcat1 = (x1-1).toString() + y1.toString() + x1.toString() + y1.toString();
+        indicesConcat2 = (x1-1).toString() + y1.toString() + (x2-1).toString() + y2.toString();
+        indicesConcat3 = (x2-1).toString() + y2.toString() + x2.toString() + y2.toString();
+
+        //Enter if each of these line combinations exist ind pointsConnected array
+        if(pointsConnected.indexOf(indicesConcat1) != -1 && pointsConnected.indexOf(indicesConcat2) != -1 && pointsConnected.indexOf(indicesConcat3) != -1)
+            return true;
+
+
+        //CHECK RIGHT SQUARE
+        indicesConcat1 = x1.toString() + y1.toString() + (x1+1).toString() + y1.toString();
+        indicesConcat2 = (x1+1).toString() + y1.toString() + (x2+1).toString() + y2.toString();
+        indicesConcat3 = x2.toString() + y2.toString() + (x2+1).toString() + y2.toString();
+
+        if(pointsConnected.indexOf(indicesConcat1) != -1 && pointsConnected.indexOf(indicesConcat2) != -1 && pointsConnected.indexOf(indicesConcat3) != -1)
+            return true;
+   }
+
+   //if the line is horizontal control possible upper and bottom squares
+   if(x2 > x1) 
+   {
+        //CHECK UPPER SQUARE  
+
+        indicesConcat1 = x1.toString() + (y1-1).toString() + x1.toString() + y1.toString();
+        indicesConcat2 = x1.toString() + (y1-1).toString() + x2.toString() + (y2-1).toString();
+        indicesConcat3 = x2.toString() + (y2-1).toString() + x2.toString() + y2.toString();
+
+        
+        if(pointsConnected.indexOf(indicesConcat1) != -1 && pointsConnected.indexOf(indicesConcat2) != -1 && pointsConnected.indexOf(indicesConcat3) != -1)
+            return true;
+
+
+        //CHECK BOTTOM SQUARE
+        indicesConcat1 = x1.toString() + y1.toString() + x1.toString() + (y1+1).toString();
+        indicesConcat2 = x1.toString() + (y1+1).toString() + x2.toString() + (y2+1).toString();
+        indicesConcat3 = x2.toString() + y2.toString() + x2.toString() + (y2+1).toString();
+
+        if(pointsConnected.indexOf(indicesConcat1) != -1 && pointsConnected.indexOf(indicesConcat2) != -1 && pointsConnected.indexOf(indicesConcat3) != -1)
+            return true;
+   }
     return false;
 }
 
@@ -351,22 +391,25 @@ canvas.addEventListener('mousedown', function(evt) {
 
 		// draw the line if the click is close enough to the edge
         if(drawLine(edge.x1,edge.y1,edge.x2,edge.y2,ctx, playerStatus.color[playerStatus.turn])) 
-		  forward = true;
+		{
+            forward = true;
+            //Control if there is a square after drawing new line..
+            if(isSquareDetected(edge.x1,edge.y1,edge.x2,edge.y2)){
+                console.log("Square Detected");
+                alert("Square Detected");
+                playerTurnAlgorithm(false, playerStatus) // the player who complates the square will keep turn on himself.
+                
+                //Player score logic can be implemented here..
+            }
+            else
+            {
+                playerTurnAlgorithm(forward, playerStatus) // the turn passes to next player
+            }
+
+        }
         else
           forward = false;  //user turn doesn't change if drawLine returns false
 
-		//Control if there is a square after drawing new line..
-		if(isSquareDetected()){
-			console.log("Square Detected");
-			
-			playerTurnAlgorithm(false, playerStatus) // the player who complates the square will keep turn on himself.
-			
-			//Player score logic can be implemented here..
-			
-		}else{
-
-			playerTurnAlgorithm(forward, playerStatus) // the turn passes to next player
-		}
 	}
 }, false);
 	
