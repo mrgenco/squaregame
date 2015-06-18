@@ -59,6 +59,11 @@ var points = {
 	yPos: [""] // array holding y-coordinates
 };
 
+//pointsConnected array holds the indices of previously connected points.
+//Ex : assume x1 = 0 : y1 = 0 and x2 = 1 : y2 = 0 are connected
+//     than pointsConnected must contain the value 0010 which refers to x1y1x2y2
+var pointsConnected = [""]; 
+
 //boardArray is a two dimensional array that holds the indices of our points
 //connected with lines
 var pointIndices;
@@ -115,7 +120,7 @@ function drawGameBoard(){
     var size = this.value;
     pointIndices = new Array(size);
     for (i=0; i <size; i++){
-        pointIndices[i]= new Array(size);
+        pointIndices[i] = new Array(size);
     }
 
     //Points are created on the board
@@ -178,24 +183,42 @@ function drawPoint(x, y, context, color){
 
 
 // This function draws a line between the input coordinates.
-function drawLine(x1, y1, x2, y2, context, color){
-	
-	context.beginPath();
-	context.lineCap = lineType;
-	context.lineWidth = lineWidth;
-	context.moveTo(points.xPos[x1], points.yPos[y1]);
-	context.lineTo(points.xPos[x2], points.yPos[y2]);
-	context.strokeStyle = color;
-	context.stroke();
+// UPDATE : Control added for second draw attempt between previously connected points. 
+//          returns true if line is drawn 
+//          returns false if there is already a line
+function drawLine(x1, y1, x2, y2, context, color){	
 
-	drawPoint(points.xPos[x1], points.yPos[y1], context, colors.pointAfterDrawline); // draw initial point above the drawn line
-	drawPoint(points.xPos[x2], points.yPos[y2], context, colors.pointAfterDrawline); // draw ending point above the drawn line
-	
-    console.log(x1 + " " + y1 + " " + x2 + " " + y2);
+    var indicesConcat = x1.toString() + y1.toString() + x2.toString() + y2.toString();
 
-    pointIndices[x1][y1] = 1;
-    pointIndices[x2][y2] = 1;
+    // Control added for second draw attempt
+    if(pointsConnected.indexOf(indicesConcat) == -1){ //Enter if x1y1x2y2 combination doesnt exist
 
+        context.beginPath();
+        context.lineCap = lineType;
+        context.lineWidth = lineWidth;
+        context.moveTo(points.xPos[x1], points.yPos[y1]);
+        context.lineTo(points.xPos[x2], points.yPos[y2]);
+        context.strokeStyle = color;
+        context.stroke();
+
+        drawPoint(points.xPos[x1], points.yPos[y1], context, colors.pointAfterDrawline); // draw initial point above the drawn line
+        drawPoint(points.xPos[x2], points.yPos[y2], context, colors.pointAfterDrawline); // draw ending point above the drawn line
+    
+        console.log(x1 + " " + y1 + " " + x2 + " " + y2);
+
+        //add these indices to array for not drawing between same points later 
+        pointsConnected.push(indicesConcat);
+
+        pointIndices[x1][y1] = 1;
+        pointIndices[x2][y2] = 1;
+
+        return true;
+
+    }
+    else{
+        alert("There is already a line here!");
+        return false;
+    }
 
 }
 //TODO...
@@ -323,8 +346,15 @@ canvas.addEventListener('mousedown', function(evt) {
 	console.log(message2);
 	
 	if(edge.distance < maxRange){
-		drawLine(edge.x1,edge.y1,edge.x2,edge.y2,ctx, playerStatus.color[playerStatus.turn]); // draw the line if the click is close enough to the edge
-		
+       
+        var forward;
+
+		// draw the line if the click is close enough to the edge
+        if(drawLine(edge.x1,edge.y1,edge.x2,edge.y2,ctx, playerStatus.color[playerStatus.turn])) 
+		  forward = true;
+        else
+          forward = false;  //user turn doesn't change if drawLine returns false
+
 		//Control if there is a square after drawing new line..
 		if(isSquareDetected()){
 			console.log("Square Detected");
@@ -334,7 +364,8 @@ canvas.addEventListener('mousedown', function(evt) {
 			//Player score logic can be implemented here..
 			
 		}else{
-			playerTurnAlgorithm(true, playerStatus) // the turn passes to next player
+
+			playerTurnAlgorithm(forward, playerStatus) // the turn passes to next player
 		}
 	}
 }, false);
