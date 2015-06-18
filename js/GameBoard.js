@@ -19,6 +19,7 @@ button_5x5.onclick = drawGameBoard;
 button_6x6.onclick = drawGameBoard;
 
 var isStarted = false;
+var flagNameDistplay = false;
 
 var pointCountX = 5;
 var pointCountY = 5;
@@ -43,7 +44,8 @@ var playerStatus = {
 var colors = {
 	pointInitial: "#5CB85C",
 	pointAfterDrawline: "#FFFF00",
-	pointOnHower: "#FF9900"
+	pointOnHower: "#FF9900",
+	bootStrap: ["default", "primary", "success", "info", "warning", "danger"] // use this parameter only if you are manipulating .html 
 }
 
 //The maximum range between the selected point perpendicular to the nearest edge 
@@ -87,10 +89,14 @@ function drawGameBoard(){
 	// playerStatus.names = {element11, element12, ...}
 	// playerStatus.color = {element21, element22, ...}
 	
-	if(playerStatus.names.length != playerStatus.amount || playerStatus.color.length != playerStatus.amount){
+	if(playerStatus.names.length != playerStatus.amount || playerStatus.color.length != playerStatus.amount || playerStatus.amount < 2){
 		
-		// there is some missing information here...
+		// there is some missing information if you are here...
+		alert("Check the player setup again. There is something wrong with playerStatus.");
 	}
+	
+	displayPlayerNames(playerStatus, colors);
+	
     //Old values must be cleared before canvas recreated..
     pointsConnected = [""];
     points.xPos = [""];
@@ -370,6 +376,18 @@ function playerTurnAlgorithm(forward, playerProperties)
 		}else{
 			playerProperties.turn ++;
 		}
+	}
+}
+
+function displayPlayerNames(playerProperties, color){
+	
+	// check if the names already exist, so that program wont create every time it re-draws the canvas
+	if(!flagNameDistplay){
+		for (var i = 0; i < playerProperties.amount; i++) {
+			$( "<h1><span id=\"Player" + i + "\"  class=\"label label-" + color.bootStrap[i % color.bootStrap.length] + " col-sm-4\" >" + playerProperties.names[i] + "</span></h1></br></br>" ).insertAfter( "#player-names" );
+		}
+		
+		flagNameDistplay = true; // whenever the playerProperties change set this flag to false
 	}
 }
 
