@@ -28,15 +28,16 @@ var canvas = document.getElementById("game-canvas");
 var canvasWidth;
 var canvasHeight;
 
-var buttonValue = 0;
+var gameSize = 0;
 var ctx = canvas.getContext("2d");
 
 // Player setup will be made according to 2 on default
 var playerStatus = {
 	// has to be set on drawGameBoard //
-	amount: 2,  // amount of players playing the game
-	names: ["Arif", "Mehmet"], // names of the player
-	color: ["#FF0000", "#0000FF"], // different color for each player
+	amount: 3,  // amount of players playing the game
+	names: ["Arif", "Mehmet", "Murat"], // names of the player
+	color: ["#FF0000", "#0000FF","#FFFFFF"], // different color for each player
+    scores: [0,0,0],  //initial values for scores
 	// dynamic values //
 	turn: 0
 }
@@ -97,10 +98,16 @@ function drawGameBoard(){
 	
 	displayPlayerNames(playerStatus, colors);
 	
+
     //Old values must be cleared before canvas recreated..
     pointsConnected = [""];
     points.xPos = [""];
     points.yPos = [""];
+    //Scores must be cleared as well..
+    for (var i = 0; i < playerStatus.amount; i++) {
+        playerStatus.scores[i] = 0;
+        document.getElementById("Player" + i).innerHTML = playerStatus.names[i] + " : " + playerStatus.scores[i];
+    }
 
 
     resizeCanvas();
@@ -118,11 +125,11 @@ function drawGameBoard(){
         //Gameboard size can be 3x3, 4x4, 5x5, 6x6
         countX = this.value;
         countY = this.value;
-        buttonValue = this.value;
+        gameSize = this.value;
     }
     else{ //enters when window resize 
-        countX = buttonValue;
-        countY = buttonValue;
+        countX = gameSize;
+        countY = gameSize;
     }
     
     //Points are created on the board
@@ -225,8 +232,7 @@ function drawLine(x1, y1, x2, y2, context, color){
  *
  * @param x1,y1 : point1
  * @param x2,y2 : point2
- * @return : true if square detected, false otherwise
- *
+ * @return : squareCount
  * Known Issue : in some cases it is possible to create multiple square with single line 
  *               and this function didnt handle it yet.
  *
@@ -237,6 +243,7 @@ function isSquareDetected(x1, y1, x2, y2){
    var indicesConcat1;
    var indicesConcat2;
    var indicesConcat3;
+   var squareCount = 0;
 
    //if the line is vertical control possible left and right squares
    if(y2 > y1)
@@ -250,7 +257,7 @@ function isSquareDetected(x1, y1, x2, y2){
 
         //Enter if each of these line combinations exist ind pointsConnected array
         if(pointsConnected.indexOf(indicesConcat1) != -1 && pointsConnected.indexOf(indicesConcat2) != -1 && pointsConnected.indexOf(indicesConcat3) != -1)
-            return true;
+            squareCount++;
 
 
         //CHECK RIGHT SQUARE
@@ -259,7 +266,7 @@ function isSquareDetected(x1, y1, x2, y2){
         indicesConcat3 = x2.toString() + y2.toString() + (x2+1).toString() + y2.toString();
 
         if(pointsConnected.indexOf(indicesConcat1) != -1 && pointsConnected.indexOf(indicesConcat2) != -1 && pointsConnected.indexOf(indicesConcat3) != -1)
-            return true;
+            squareCount++;
    }
 
    //if the line is horizontal control possible upper and bottom squares
@@ -273,7 +280,7 @@ function isSquareDetected(x1, y1, x2, y2){
 
         
         if(pointsConnected.indexOf(indicesConcat1) != -1 && pointsConnected.indexOf(indicesConcat2) != -1 && pointsConnected.indexOf(indicesConcat3) != -1)
-            return true;
+            squareCount++;
 
 
         //CHECK BOTTOM SQUARE
@@ -282,10 +289,16 @@ function isSquareDetected(x1, y1, x2, y2){
         indicesConcat3 = x2.toString() + y2.toString() + x2.toString() + (y2+1).toString();
 
         if(pointsConnected.indexOf(indicesConcat1) != -1 && pointsConnected.indexOf(indicesConcat2) != -1 && pointsConnected.indexOf(indicesConcat3) != -1)
-            return true;
+            squareCount++;
    }
-    return false;
+   if(squareCount != 0)
+        return squareCount;
+   else
+        return 0;
 }
+
+
+
 
 /**
  * This function detects the nearest edge to the clicked point.
@@ -383,12 +396,42 @@ function displayPlayerNames(playerProperties, color){
 	
 	// check if the names already exist, so that program wont create every time it re-draws the canvas
 	if(!flagNameDistplay){
-		for (var i = 0; i < playerProperties.amount; i++) {
-			$( "<h1><span id=\"Player" + i + "\"  class=\"label label-" + color.bootStrap[i % color.bootStrap.length] + " col-sm-4\" >" + playerProperties.names[i] + "</span></h1></br></br>" ).insertAfter( "#player-names" );
-		}
+	for (var i = 0; i < playerProperties.amount; i++) {
+		$( "<h3><span id=\"Player" + i + "\"  class=\"label label-" + color.bootStrap[i % color.bootStrap.length] + " col-sm-4\" >" + playerProperties.names[i]+ "</span></h1></br></br>" ).insertAfter( "#player-names" );
+	}
 		
 		flagNameDistplay = true; // whenever the playerProperties change set this flag to false
 	}
+}
+
+//This function refreshes the player scores each time square/squares found
+//Player score increases 1 per square
+function refreshPlayerScores(playerProperties, squareCount){
+    
+    var player = playerProperties.turn;
+    playerProperties.scores[player]+=squareCount;
+
+    for (var i = 0; i < playerProperties.amount; i++) {
+        document.getElementById("Player" + i).innerHTML = playerProperties.names[i] + " : " + playerProperties.scores[i];
+    }
+
+}
+
+//Controls if players find all the squares on gameboard
+//@return true if the game is over
+function isGameOver(playerProperties)
+{
+    var totalSquare = 0;
+    
+    for (var i = 0; i < playerProperties.amount; i++) {
+        totalSquare += playerProperties.scores[i];
+    }
+
+    if(totalSquare == (gameSize-1)*(gameSize-1))
+        return true;
+    else
+        return false;
+
 }
 
 //MOUSE DOWN EVENT
@@ -396,8 +439,6 @@ function displayPlayerNames(playerProperties, color){
 canvas.addEventListener('mousedown', function(evt) {
 
 	var mousePos = getMousePos(canvas, evt);
-	var message = 'Mouse position: ' + mousePos.x + ',' + mousePos.y;
-	console.log(message);
 	
 	var edge = findTheClosestEdge(canvas, mousePos.x, mousePos.y);
 	var message2 = 'Distance: ' + edge.distance + '\nPoint 1: (' + points.xPos[edge.x1] + ',' + points.yPos[edge.y1] + ')\nPoint 2: (' + points.xPos[edge.x2] + ',' + points.yPos[edge.y2] + ')';
@@ -409,14 +450,21 @@ canvas.addEventListener('mousedown', function(evt) {
 
 		// draw the line if the click is close enough to the edge
         if(drawLine(edge.x1,edge.y1,edge.x2,edge.y2,ctx, playerStatus.color[playerStatus.turn])) 
-		{
+		{ 
+
             forward = true;
             //Control if there is a square after drawing new line..
-            if(isSquareDetected(edge.x1,edge.y1,edge.x2,edge.y2)){
+            squareCount = isSquareDetected(edge.x1,edge.y1,edge.x2,edge.y2);
+            if(squareCount != 0){
+
+                forward = false;
                 console.log("Square Detected");
-                alert("Square Detected");
                 playerTurnAlgorithm(false, playerStatus) // the player who complates the square will keep turn on himself.
+                refreshPlayerScores(playerStatus, squareCount);
                 
+                if(isGameOver(playerStatus))
+                    alert("Game is Over!!!!!");
+
                 //Player score logic can be implemented here..
             }
             else
