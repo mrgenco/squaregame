@@ -36,17 +36,17 @@ var playerStatus = {
 	// has to be set on drawGameBoard //
 	amount: 3,  // amount of players playing the game
 	names: ["Arif", "Mehmet", "Murat"], // names of the player
-	color: ["#FF0000", "#0000FF","#FFFFFF"], // different color for each player
+	color: ["#5CB85C", "#337AB7","#F0AD4E"], // different color for each player
     scores: [0,0,0],  //initial values for scores
 	// dynamic values //
 	turn: 0
 }
 
 var colors = {
-	pointInitial: "#5CB85C",
+	pointInitial: "#FA334F",
 	pointAfterDrawline: "#FFFF00",
 	pointOnHower: "#FF9900",
-	bootStrap: ["default", "primary", "success", "info", "warning", "danger"] // use this parameter only if you are manipulating .html 
+	bootStrap: ["success", "primary", "warning", "info", "default", "danger"] // use this parameter only if you are manipulating .html 
 }
 
 //The maximum range between the selected point perpendicular to the nearest edge 
