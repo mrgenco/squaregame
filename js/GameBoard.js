@@ -7,6 +7,16 @@ $( "#start-button" ).click(function() {
   $( "#select-size" ).show( "slow" );
 });
 
+/* These are the parameters for hover code  /// -> */// <- remove me
+// if there is no cursor while playing ///
+// Remove them with:
+// - the variables (under drawLine function)  //
+// - and functions (on the end of the script file)//
+var hoverInterval = setInterval(function () {onHover()}, 500);
+var flagDrawn = false; // this flag rises when transparent line is drawn
+var tempLine; // this variable is used to temporarily store the point coordinates drawn as transparent
+//////////////////////////////////////////////////////////////*/
+
 // Global variables
 var button_3x3 = document.getElementById("button-3x3");
 var button_4x4 = document.getElementById("button-4x4");
@@ -21,12 +31,14 @@ button_6x6.onclick = drawGameBoard;
 var isStarted = false;
 var flagNameDistplay = false;
 
+
 var pointCountX = 5;
 var pointCountY = 5;
 
 var canvas = document.getElementById("game-canvas");
 var canvasWidth;
 var canvasHeight;
+
 
 var gameSize = 0;
 var ctx = canvas.getContext("2d");
@@ -179,6 +191,7 @@ function resizeCanvas() {
 // This function draws a point on the specified coordinates 
 function drawPoint(x, y, context, color){
 	
+	context.globalAlpha = 1;
 	context.beginPath();
 	context.arc(x, y, 5, 0, Math.PI*2, false);
 	context.fillStyle = color;
@@ -200,6 +213,7 @@ function drawLine(x1, y1, x2, y2, context, color){
     // Control added for second draw attempt
     if(pointsConnected.indexOf(indicesConcat) == -1){ //Enter if x1y1x2y2 combination doesnt exist
 
+		context.globalAlpha = 1;
         context.beginPath();
         context.lineCap = lineType;
         context.lineWidth = lineWidth;
@@ -215,7 +229,18 @@ function drawLine(x1, y1, x2, y2, context, color){
 
         //add these indices to array for not drawing between same points later 
         pointsConnected.push(indicesConcat);
-        
+		
+		/* This small piece of code also belongs to the hover algorithm  /// 
+		// if there is no cursor while playing /// -> */// <- remove me
+		// Remove them with:
+		// - the functions (on the end of the script file)  //
+		// - and variables (on the beginning of the script file)//
+        tempLine.x1 = 0; 
+		tempLine.y1 = 0;
+		tempLine.x2 = 0;
+		tempLine.y2 = 0;
+		////////////////////////////////////////////////////////////////////////////////////////*/
+		
         return true;
 
     }
@@ -297,7 +322,27 @@ function isSquareDetected(x1, y1, x2, y2){
         return 0;
 }
 
+function drawTransparentLine(x1, y1, x2, y2, context, color){	
 
+		context.globalAlpha = 0.5;
+        context.beginPath();
+        context.lineCap = lineType;
+        context.lineWidth = lineWidth;
+        context.moveTo(points.xPos[x1], points.yPos[y1]);
+        context.lineTo(points.xPos[x2], points.yPos[y2]);
+        context.strokeStyle = color;
+        context.stroke();
+
+        drawPoint(points.xPos[x1], points.yPos[y1], context, colors.pointOnHower); // draw initial point above the drawn line
+        drawPoint(points.xPos[x2], points.yPos[y2], context, colors.pointOnHower); // draw ending point above the drawn line   
+
+		return {
+			x1: points.xPos[x1],
+			y1: points.yPos[y1],
+			x2: points.xPos[x2],
+			y2: points.yPos[y2]
+		};
+    }
 
 
 /**
@@ -464,7 +509,7 @@ canvas.addEventListener('mousedown', function(evt) {
                 
                 if(isGameOver(playerStatus))
                     alert("Game is Over!!!!!");
-
+				
                 //Player score logic can be implemented here..
             }
             else
@@ -478,7 +523,50 @@ canvas.addEventListener('mousedown', function(evt) {
 
 	}
 }, false);
+
+/* Hovering Functions start from here  /// 
+// if there is no cursor while playing /// -> */// <- remove me
+// Remove them with:
+// - the variables (under drawLine function)  //
+// - and variables (on the beginning of the script file)//
+
+function onHover() {
 	
+    document.onmousemove = handleMouseMove;
+	
+    function handleMouseMove(event) {
+		
+		
+		var rect = canvas.getBoundingClientRect();
+		
+		var edge = findTheClosestEdge(canvas, event.clientX - rect.left, event.clientY - rect.top);
+		if((pointsConnected.indexOf(edge.x1.toString() + edge.y1.toString() + edge.x2.toString() + edge.y2.toString()) == -1)){
+			if(edge.distance < maxRange && !flagDrawn){
+				tempLine = drawTransparentLine(edge.x1, edge.y1, edge.x2, edge.y2, ctx, playerStatus.color[playerStatus.turn]);
+				flagDrawn = true;
+			}
+			else if(edge.distance > maxRange && flagDrawn){
+				clearHoveredEdge(tempLine);
+				flagDrawn = false;
+			}
+		}
+	}
+}
+
+function clearHoveredEdge(tempLineCoordinates){
+	
+	if(tempLineCoordinates.y1 - tempLineCoordinates.y2 != 0){ // the drawn line is vertical
+		ctx.clearRect(tempLineCoordinates.x1 - lineWidth, tempLineCoordinates.y1, lineWidth * 2, Math.sqrt( (tempLineCoordinates.x1-tempLineCoordinates.x2)*(tempLineCoordinates.x1-tempLineCoordinates.x2) + (tempLineCoordinates.y1-tempLineCoordinates.y2)*(tempLineCoordinates.y1-tempLineCoordinates.y2)));
+		drawPoint(tempLineCoordinates.x1, tempLineCoordinates.y1, ctx, colors.pointInitial);
+		drawPoint(tempLineCoordinates.x2, tempLineCoordinates.y2, ctx, colors.pointInitial);
+	}else if (tempLineCoordinates.x1 - tempLineCoordinates.x2 != 0) { // the drawn line is horizontal
+		ctx.clearRect(tempLineCoordinates.x1, tempLineCoordinates.y1 - lineWidth, Math.sqrt( (tempLineCoordinates.x1-tempLineCoordinates.x2)*(tempLineCoordinates.x1-tempLineCoordinates.x2) + (tempLineCoordinates.y1-tempLineCoordinates.y2)*(tempLineCoordinates.y1-tempLineCoordinates.y2)), lineWidth * 2);
+		drawPoint(tempLineCoordinates.x1, tempLineCoordinates.y1, ctx, colors.pointInitial);
+		drawPoint(tempLineCoordinates.x2, tempLineCoordinates.y2, ctx, colors.pointInitial);
+	}
+}
+///////////////////////////////////////////////////////////////////////*/
+
 // the coordinates of getMousePos and points does not overlap sometimes ! 
 // therefore some errors can occur while drawing lines. We need to match them.
 // Known Issue : Points array was holding previous values of the gameboard when different sizes selected. 
