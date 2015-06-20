@@ -22,10 +22,10 @@
 
   </head>
 
-  <body>
+  <body style="padding-top:0px;">
 
-
-    <nav class="navbar navbar-inverse navbar-fixed-top">
+ <!--
+  <nav class="navbar navbar-inverse navbar-fixed-top">
       <div class="container">
         <div class="navbar-header">
 
@@ -45,18 +45,21 @@
             <li class="active"><a href="index.html">Home</a></li>
             <li><a href="about.html">About</a></li>
           </ul>
-        </div><!--/.nav-collapse -->
-      </div>
-    </nav>
+        </div>
+        </div>
+    </nav>--><!--/.nav-collapse -->
+      
 
     <div class="mycontainer">
 
       <div class="starter-template">
              
       <!-- Indicates a successful or positive action -->
-      <button type="button" class="btn btn-lg btn-success" id="start-button">Start Playing</button>
-      </br></br>
-	<div id="select-size" style="display: none">
+     <!-- <button type="button" class="btn btn-lg btn-success" id="start-button">Start Playing</button> -->
+     <!-- </br></br> -->
+	     
+       <!--<div id="select-size" style="display:none">-->
+       <div id="select-size">
          
           <button class="btn btn-lg btn-warning" type="button" value="3" id="button-3x3">3x3</button>
           
@@ -68,17 +71,15 @@
           
         </br></br>
 
-        <div id ="canvas-container"  style="border:5px solid #D5D0D0; margin:0 auto; border-radius:5px;">
+        <div id ="canvas-container">
         
         <!-- OUR CANVAS FOR SQUAREGAME -->
-        <canvas id="game-canvas"   style = "background-color:#101010; ">
+        <canvas id="game-canvas"   style = "background-color:#323436; ">
             Your browser does not support the HTML5 canvas tag.
         
         </canvas>
 		</br> </br>
 		<div id="player-names" align="left">
-			
-			</br>
 		</div>
 		
 		</div>
