@@ -34,10 +34,10 @@ var ctx = canvas.getContext("2d");
 // Player setup will be made according to 2 on default
 var playerStatus = {
 	// has to be set on drawGameBoard //
-	amount: 3,  // amount of players playing the game
-	names: ["Arif", "Mehmet", "Murat"], // names of the player
-	color: ["#5CB85C", "#337AB7","#F0AD4E"], // different color for each player
-    scores: [0,0,0],  //initial values for scores
+	amount: 2,  // amount of players playing the game
+	names: ["Arif", "Mehmet"/*, "Murat"*/], // names of the player
+	color: ["#F0AD4E", "#337AB7"/*,"#5CB85C"*/], // different color for each player
+    scores: [0,0/*,0*/],  //initial values for scores
 	// dynamic values //
 	turn: 0
 }
@@ -46,7 +46,7 @@ var colors = {
 	pointInitial: "#FA334F",
 	pointAfterDrawline: "#FFFF00",
 	pointOnHower: "#FF9900",
-	bootStrap: ["success", "primary", "warning", "info", "default", "danger"] // use this parameter only if you are manipulating .html 
+	bootStrap: ["warning", "primary", "success", "info", "default", "danger"] // use this parameter only if you are manipulating .html 
 }
 
 //The maximum range between the selected point perpendicular to the nearest edge 
@@ -397,7 +397,7 @@ function displayPlayerNames(playerProperties, color){
 	// check if the names already exist, so that program wont create every time it re-draws the canvas
 	if(!flagNameDistplay){
 	for (var i = 0; i < playerProperties.amount; i++) {
-		$( "<h3><span id=\"Player" + i + "\"  class=\"label label-" + color.bootStrap[i % color.bootStrap.length] + " col-sm-4\" >" + playerProperties.names[i]+ "</span></h1></br></br>" ).insertAfter( "#player-names" );
+		$( "<h3><span style=\"width:100%;\" id=\"Player" + i + "\"  class=\"label label-" + color.bootStrap[i % color.bootStrap.length] + " col-sm-4\" >" + playerProperties.names[i]+ "</span></h1>" ).insertAfter( "#player-names" );
 	}
 		
 		flagNameDistplay = true; // whenever the playerProperties change set this flag to false
@@ -417,7 +417,7 @@ function refreshPlayerScores(playerProperties, squareCount){
 
 }
 
-//Controls if players find all the squares on gameboard
+//Controls if players found all the squares on gameboard
 //@return true if the game is over
 function isGameOver(playerProperties)
 {

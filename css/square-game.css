@@ -5,21 +5,32 @@
     position:absolute; 
     background:blue;
     left:33%;
-
+    border:5px solid #D5D0D0; 
+    margin:0 auto; 
+    border-radius:5px;
 }
+
+
 
 /* condition for screen size minimum of 700px */
-@media (max-width:750px) {
+@media (max-width:725px) {
 
- #canvas-container
-{
-	width:100%;
-    height:50%;
-    position:absolute; 
-    background:blue;
-    left:0%;
+    #canvas-container
+    {
+    	width:100%;
+        height:50%;
+        position:absolute; 
+        background:blue;
+        left:0%;
+        border:5px solid #D5D0D0; 
+        margin:0 auto; 
+        border-radius:5px;
 
-}
+    }
 
 }
  
+h3
+{
+    float:left;
+}
