@@ -261,7 +261,13 @@ function isSquareDetected(x1, y1, x2, y2){
    var indicesConcat2;
    var indicesConcat3;
    var squareCount = 0;
-
+   var squarePosition = {
+	   left: 1,
+	   right: 2,
+	   up: 3,
+	   down: 4
+   };
+   
    //if the line is vertical control possible left and right squares
    if(y2 > y1)
    {
@@ -272,18 +278,21 @@ function isSquareDetected(x1, y1, x2, y2){
         indicesConcat2 = (x1-1).toString() + y1.toString() + (x2-1).toString() + y2.toString();
         indicesConcat3 = (x2-1).toString() + y2.toString() + x2.toString() + y2.toString();
 
-        //Enter if each of these line combinations exist ind pointsConnected array
-        if(pointsConnected.indexOf(indicesConcat1) != -1 && pointsConnected.indexOf(indicesConcat2) != -1 && pointsConnected.indexOf(indicesConcat3) != -1)
+        //Enter if each of these line combinations exist in pointsConnected array
+        if(pointsConnected.indexOf(indicesConcat1) != -1 && pointsConnected.indexOf(indicesConcat2) != -1 && pointsConnected.indexOf(indicesConcat3) != -1){
             squareCount++;
-
+			drawRect(x1, y1, x2, y2, squarePosition.left, ctx, playerStatus.color[playerStatus.turn]);
+		}
 
         //CHECK RIGHT SQUARE
         indicesConcat1 = x1.toString() + y1.toString() + (x1+1).toString() + y1.toString();
         indicesConcat2 = (x1+1).toString() + y1.toString() + (x2+1).toString() + y2.toString();
         indicesConcat3 = x2.toString() + y2.toString() + (x2+1).toString() + y2.toString();
 
-        if(pointsConnected.indexOf(indicesConcat1) != -1 && pointsConnected.indexOf(indicesConcat2) != -1 && pointsConnected.indexOf(indicesConcat3) != -1)
+        if(pointsConnected.indexOf(indicesConcat1) != -1 && pointsConnected.indexOf(indicesConcat2) != -1 && pointsConnected.indexOf(indicesConcat3) != -1){
             squareCount++;
+			drawRect(x1, y1, x2, y2, squarePosition.right, ctx, playerStatus.color[playerStatus.turn]);
+		}
    }
 
    //if the line is horizontal control possible upper and bottom squares
@@ -296,48 +305,104 @@ function isSquareDetected(x1, y1, x2, y2){
         indicesConcat3 = x2.toString() + (y2-1).toString() + x2.toString() + y2.toString();
 
         
-        if(pointsConnected.indexOf(indicesConcat1) != -1 && pointsConnected.indexOf(indicesConcat2) != -1 && pointsConnected.indexOf(indicesConcat3) != -1)
+        if(pointsConnected.indexOf(indicesConcat1) != -1 && pointsConnected.indexOf(indicesConcat2) != -1 && pointsConnected.indexOf(indicesConcat3) != -1){
             squareCount++;
-
+			drawRect(x1, y1, x2, y2, squarePosition.up, ctx, playerStatus.color[playerStatus.turn]);
+		}
 
         //CHECK BOTTOM SQUARE
         indicesConcat1 = x1.toString() + y1.toString() + x1.toString() + (y1+1).toString();
         indicesConcat2 = x1.toString() + (y1+1).toString() + x2.toString() + (y2+1).toString();
         indicesConcat3 = x2.toString() + y2.toString() + x2.toString() + (y2+1).toString();
 
-        if(pointsConnected.indexOf(indicesConcat1) != -1 && pointsConnected.indexOf(indicesConcat2) != -1 && pointsConnected.indexOf(indicesConcat3) != -1)
+        if(pointsConnected.indexOf(indicesConcat1) != -1 && pointsConnected.indexOf(indicesConcat2) != -1 && pointsConnected.indexOf(indicesConcat3) != -1){
             squareCount++;
+			drawRect(x1, y1, x2, y2, squarePosition.down, ctx, playerStatus.color[playerStatus.turn]);
+		}
    }
-   if(squareCount != 0)
-        return squareCount;
-   else
-        return 0;
+   //if(squareCount != 0)
+   //     return squareCount;
+   //else
+   //     return 0;
+	return squareCount; // Mehmet you are busted haha :))
 }
 
 
 function drawTransparentLine(x1, y1, x2, y2, context, color){	
 
-		context.globalAlpha = 0.5;
-        context.beginPath();
-        context.lineCap = lineType;
-        context.lineWidth = lineWidth;
-        context.moveTo(points.xPos[x1], points.yPos[y1]);
-        context.lineTo(points.xPos[x2], points.yPos[y2]);
-        context.strokeStyle = color;
-        context.stroke();
+	context.globalAlpha = 0.5;
+	context.beginPath();
+	context.lineCap = lineType;
+	context.lineWidth = lineWidth;
+	context.moveTo(points.xPos[x1], points.yPos[y1]);
+	context.lineTo(points.xPos[x2], points.yPos[y2]);
+	context.strokeStyle = color;
+	context.stroke();
 
-        drawPoint(points.xPos[x1], points.yPos[y1], context, colors.pointOnHower); // draw initial point above the drawn line
-        drawPoint(points.xPos[x2], points.yPos[y2], context, colors.pointOnHower); // draw ending point above the drawn line   
+	drawPoint(points.xPos[x1], points.yPos[y1], context, colors.pointOnHower); // draw initial point above the drawn line
+	drawPoint(points.xPos[x2], points.yPos[y2], context, colors.pointOnHower); // draw ending point above the drawn line   
 
-		return {
-			x1: points.xPos[x1],
-			y1: points.yPos[y1],
-			x2: points.xPos[x2],
-			y2: points.yPos[y2]
-		};
-    }
+	return {
+		x1: points.xPos[x1],
+		y1: points.yPos[y1],
+		x2: points.xPos[x2],
+		y2: points.yPos[y2]
+	};
+}
 
 
+/**
+ * This function draws a half-transparent rectangle on the completed square.
+ * Square is colored according to the color whom ever completed it. 
+ * @param x1,y1 : point1
+ * @param x2,y2 : point2
+ * @direction: completed square direction (1 -> left, 2 -> right, 3 -> top, 4 -> bottom)
+ * @context: context which is defined globally
+ * @color: completed players color info
+ */
+function drawRect(x1, y1, x2, y2, direction, context, color){
+	
+	var rectWidth;
+	var rectHeight;
+	
+	context.globalAlpha = 0.5;
+	context.fillStyle = color;
+	
+	switch(direction) {
+		case 1: // fill through left
+			rectWidth = -Math.abs(points.xPos[x1] - points.xPos[x1 - 1]) + lineWidth;
+			rectHeight = Math.abs(points.yPos[y1] - points.yPos[y2]) - lineWidth;
+			
+			context.fillRect(points.xPos[x1] - lineWidth / 2, points.yPos[y1] + lineWidth / 2, rectWidth, rectHeight);
+			
+			break;
+		case 2: // fill through right
+			rectWidth = Math.abs(points.xPos[x1] - points.xPos[x1 + 1]) - lineWidth;
+			rectHeight = Math.abs(points.yPos[y1] - points.yPos[y2]) - lineWidth;
+			
+			context.fillRect(points.xPos[x1] + lineWidth / 2, points.yPos[y1]  + lineWidth / 2, rectWidth, rectHeight);
+			
+			break;
+		case 3: // fill through top
+			rectWidth = Math.abs(points.xPos[x1] - points.xPos[x2]) - lineWidth;
+			rectHeight = -(Math.abs(points.yPos[y1] - points.yPos[y1 - 1]) - lineWidth / 2);
+			
+			context.fillRect(points.xPos[x1] + lineWidth / 2, points.yPos[y1], rectWidth, rectHeight);
+			
+			break;
+		case 4: // fill through bottom
+			rectWidth = Math.abs(points.xPos[x1] - points.xPos[x2]) - lineWidth;
+			rectHeight = Math.abs(points.yPos[y1] - points.yPos[y1 + 1]);
+			
+			context.fillRect(points.xPos[x1] + lineWidth / 2, points.yPos[y1], rectWidth, rectHeight);
+			
+			break;
+		default:
+			alert("You have discovered an interesting bug.");
+	}
+}
+	
+	
 /**
  * This function detects the nearest edge to the clicked point.
  *
@@ -575,7 +640,7 @@ function clearHoveredEdge(tempLineCoordinates){
 	
 	if(tempLineCoordinates.y1 - tempLineCoordinates.y2 != 0){ // the drawn line is vertical
 		
-		ctx.clearRect(tempLineCoordinates.x1 - lineWidth, tempLineCoordinates.y1, lineWidth * 2, Math.sqrt( (tempLineCoordinates.x1-tempLineCoordinates.x2)*(tempLineCoordinates.x1-tempLineCoordinates.x2) + (tempLineCoordinates.y1-tempLineCoordinates.y2)*(tempLineCoordinates.y1-tempLineCoordinates.y2)));
+		ctx.clearRect(tempLineCoordinates.x1 - lineWidth, tempLineCoordinates.y1, lineWidth * 2, tempLineCoordinates.y2 - tempLineCoordinates.y1);
 		
 		// refresh the points after clearing the projected line
 		drawPoint(tempLineCoordinates.x1, tempLineCoordinates.y1, ctx, colors.pointInitial); 
@@ -583,7 +648,7 @@ function clearHoveredEdge(tempLineCoordinates){
 	
 	}else if (tempLineCoordinates.x1 - tempLineCoordinates.x2 != 0) { // the drawn line is horizontal
 		
-		ctx.clearRect(tempLineCoordinates.x1, tempLineCoordinates.y1 - lineWidth, Math.sqrt( (tempLineCoordinates.x1-tempLineCoordinates.x2)*(tempLineCoordinates.x1-tempLineCoordinates.x2) + (tempLineCoordinates.y1-tempLineCoordinates.y2)*(tempLineCoordinates.y1-tempLineCoordinates.y2)), lineWidth * 2);
+		ctx.clearRect(tempLineCoordinates.x1, tempLineCoordinates.y1 - lineWidth, tempLineCoordinates.x2 - tempLineCoordinates.x1, lineWidth * 2);
 		
 		// refresh the points after clearing the projected line
 		drawPoint(tempLineCoordinates.x1, tempLineCoordinates.y1, ctx, colors.pointInitial);
