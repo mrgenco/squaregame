@@ -12,7 +12,7 @@ $( "#start-button" ).click(function() {
 // Remove them with:
 // - the variables (under drawLine function)  //
 // - and functions (on the end of the script file)//
-var hoverInterval = setInterval(function () {onHover()}, 500);
+var hoverInterval = setInterval(function () {onHover()}, 500); // set a timer that runs every 500ms
 var flagDrawn = false; // this flag rises when transparent line is drawn
 var tempLine; // this variable is used to temporarily store the point coordinates drawn as transparent
 //////////////////////////////////////////////////////////////*/
@@ -31,14 +31,12 @@ button_6x6.onclick = drawGameBoard;
 var isStarted = false;
 var flagNameDistplay = false;
 
-
 var pointCountX = 5;
 var pointCountY = 5;
 
 var canvas = document.getElementById("game-canvas");
 var canvasWidth;
 var canvasHeight;
-
 
 var gameSize = 0;
 var ctx = canvas.getContext("2d");
@@ -87,7 +85,6 @@ var pointsConnected = [""];
 canvas.style.width = '100%';
 canvas.style.height = '100%';
 
-
 //drawGameBoard function will be called each time the user resizes the window
 window.addEventListener('resize', drawGameBoard, false);
 
@@ -121,7 +118,6 @@ function drawGameBoard(){
         document.getElementById("Player" + i).innerHTML = playerStatus.names[i] + " : " + playerStatus.scores[i];
     }
 
-
     resizeCanvas();
 
 	ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -131,7 +127,6 @@ function drawGameBoard(){
 
     var countX;
     var countY;
-
 
     if(this.value){ //enters when button clicks
         //Gameboard size can be 3x3, 4x4, 5x5, 6x6
@@ -153,8 +148,6 @@ function drawGameBoard(){
     pointX = pointDistanceX/2;	
     pointY = pointDistanceY/2;
 
-    
-
     for (var i = 0; i < countY; i++) {
     	for (var j = 0; j < countX; j++) {
     	
@@ -169,8 +162,8 @@ function drawGameBoard(){
     	pointY = pointY + pointDistanceY;
     	pointX = pointDistanceX/2;
     };
-
 }
+
 
 // Runs each time the DOM window resize event fires.
 // Resets the canvas dimensions to match window
@@ -187,6 +180,7 @@ function resizeCanvas() {
         canvas.height = window.innerHeight/2;
     }
 }
+
 
 // This function draws a point on the specified coordinates 
 function drawPoint(x, y, context, color){
@@ -242,13 +236,11 @@ function drawLine(x1, y1, x2, y2, context, color){
 		////////////////////////////////////////////////////////////////////////////////////////*/
 		
         return true;
-
     }
     else{
         alert("There is already a line here!");
         return false;
     }
-
 }
 
 
@@ -321,6 +313,7 @@ function isSquareDetected(x1, y1, x2, y2){
    else
         return 0;
 }
+
 
 function drawTransparentLine(x1, y1, x2, y2, context, color){	
 
@@ -418,6 +411,7 @@ function findTheClosestEdge(canvas, clckPosX, clckPosY){
 	return closestEdge;
 }
 
+
 /**
  * This function calculates which player is next to play.
  *
@@ -437,6 +431,12 @@ function playerTurnAlgorithm(forward, playerProperties)
 	}
 }
 
+
+/**
+ * This function creates the player names as labels beneath the canvas in different colors. 
+ * @playerProperties: This is the object the includes the player name and the player amount information.
+ * @color: This is the object which holds the color information. Colors are assigned according to this object.
+ */
 function displayPlayerNames(playerProperties, color){
 	
 	// check if the names already exist, so that program wont create every time it re-draws the canvas
@@ -444,10 +444,10 @@ function displayPlayerNames(playerProperties, color){
 	for (var i = 0; i < playerProperties.amount; i++) {
 		$( "<h3><span style=\"width:100%;\" id=\"Player" + i + "\"  class=\"label label-" + color.bootStrap[i % color.bootStrap.length] + " col-sm-4\" >" + playerProperties.names[i]+ "</span></h1>" ).insertAfter( "#player-names" );
 	}
-		
 		flagNameDistplay = true; // whenever the playerProperties change set this flag to false
 	}
 }
+
 
 //This function refreshes the player scores each time square/squares found
 //Player score increases 1 per square
@@ -461,6 +461,7 @@ function refreshPlayerScores(playerProperties, squareCount){
     }
 
 }
+
 
 //Controls if players found all the squares on gameboard
 //@return true if the game is over
@@ -478,6 +479,7 @@ function isGameOver(playerProperties)
         return false;
 
 }
+
 
 //MOUSE DOWN EVENT
 //You can see the coordinates on the browser console..
@@ -524,48 +526,72 @@ canvas.addEventListener('mousedown', function(evt) {
 	}
 }, false);
 
+
 /* Hovering Functions start from here  /// 
 // if there is no cursor while playing /// -> */// <- remove me
 // Remove them with:
 // - the variables (under drawLine function)  //
 // - and variables (on the beginning of the script file)//
 
+/**
+ * This function works only if a cursor is available,
+ * It projects any possible edge before drawing.
+ * This function also uses the defined timer combined with the onmousemove event.
+ * If the line can be drawn on click, a transparent line is drawn. When the cursor 
+ * gets out of the range without clicking, the drawn line is cleared.
+ */
 function onHover() {
 	
-    document.onmousemove = handleMouseMove;
+    document.onmousemove = handleMouseMove; 
 	
-    function handleMouseMove(event) {
+    function handleMouseMove(event) { // enters here on every mouse movement
 		
-		
-		var rect = canvas.getBoundingClientRect();
+		var rect = canvas.getBoundingClientRect(); 
 		
 		var edge = findTheClosestEdge(canvas, event.clientX - rect.left, event.clientY - rect.top);
-		if((pointsConnected.indexOf(edge.x1.toString() + edge.y1.toString() + edge.x2.toString() + edge.y2.toString()) == -1)){
-			if(edge.distance < maxRange && !flagDrawn){
+		
+		if((pointsConnected.indexOf(edge.x1.toString() + edge.y1.toString() + edge.x2.toString() + edge.y2.toString()) == -1)){ //do not enter if a line is already drawn
+			
+			if(edge.distance < maxRange && !flagDrawn){ // enter if there the cursor is in range to draw, and there is no projected line drawn
 				tempLine = drawTransparentLine(edge.x1, edge.y1, edge.x2, edge.y2, ctx, playerStatus.color[playerStatus.turn]);
-				flagDrawn = true;
+				flagDrawn = true; // rise the flag so the program wont re-draw the projected line
 			}
-			else if(edge.distance > maxRange && flagDrawn){
-				clearHoveredEdge(tempLine);
-				flagDrawn = false;
+			
+			else if(edge.distance > maxRange && flagDrawn){ // enter if the projected line is drawn and the cursor is now out of range
+				clearHoveredEdge(tempLine); // clear the projected line
+				flagDrawn = false; // clear the flag since the projected line is cleared
 			}
 		}
 	}
 }
 
+
+/**
+ * This function is called when the temproary drawn transparent line needs to be cleared.
+ * @tempLineCoordinates: These are the coordinates where the transparent line is drawn. 
+ * So the function will calculate which area to clear.
+ */
 function clearHoveredEdge(tempLineCoordinates){
 	
 	if(tempLineCoordinates.y1 - tempLineCoordinates.y2 != 0){ // the drawn line is vertical
+		
 		ctx.clearRect(tempLineCoordinates.x1 - lineWidth, tempLineCoordinates.y1, lineWidth * 2, Math.sqrt( (tempLineCoordinates.x1-tempLineCoordinates.x2)*(tempLineCoordinates.x1-tempLineCoordinates.x2) + (tempLineCoordinates.y1-tempLineCoordinates.y2)*(tempLineCoordinates.y1-tempLineCoordinates.y2)));
-		drawPoint(tempLineCoordinates.x1, tempLineCoordinates.y1, ctx, colors.pointInitial);
+		
+		// refresh the points after clearing the projected line
+		drawPoint(tempLineCoordinates.x1, tempLineCoordinates.y1, ctx, colors.pointInitial); 
 		drawPoint(tempLineCoordinates.x2, tempLineCoordinates.y2, ctx, colors.pointInitial);
+	
 	}else if (tempLineCoordinates.x1 - tempLineCoordinates.x2 != 0) { // the drawn line is horizontal
+		
 		ctx.clearRect(tempLineCoordinates.x1, tempLineCoordinates.y1 - lineWidth, Math.sqrt( (tempLineCoordinates.x1-tempLineCoordinates.x2)*(tempLineCoordinates.x1-tempLineCoordinates.x2) + (tempLineCoordinates.y1-tempLineCoordinates.y2)*(tempLineCoordinates.y1-tempLineCoordinates.y2)), lineWidth * 2);
+		
+		// refresh the points after clearing the projected line
 		drawPoint(tempLineCoordinates.x1, tempLineCoordinates.y1, ctx, colors.pointInitial);
 		drawPoint(tempLineCoordinates.x2, tempLineCoordinates.y2, ctx, colors.pointInitial);
 	}
 }
 ///////////////////////////////////////////////////////////////////////*/
+
 
 // the coordinates of getMousePos and points does not overlap sometimes ! 
 // therefore some errors can occur while drawing lines. We need to match them.
@@ -578,15 +604,3 @@ function getMousePos(canvas, evt) {
       y: evt.clientY - rect.top
     };
 }
-
-
-
-
-
-
-
-
-
-
-
-
